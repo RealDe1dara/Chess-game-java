@@ -1,4 +1,4 @@
-package chess_game;
+package chess_game.board;
 
 public class Board {
 
@@ -19,7 +19,20 @@ public class Board {
     //     return board;
     // }
     public Square getSquare(int row, int column) {
+        if (row < 0 || row >= 8 || column < 0 || column >= 8) {
+            return null;
+        }
         return board[row][column];
     }
-    
+
+    // public Piece getSelectedPiece() {
+    //     for (int i = 0; i < rows; i++) {
+    //         for (int j = 0; j < columns; j++) {
+    //             if (board[i][j].getPiece().getIsSelected()) {
+    //                 return board[i][j].getPiece();
+    //             }
+    //         }
+    //     }
+    //     return null;
+    // }
 }
