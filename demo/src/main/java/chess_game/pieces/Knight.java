@@ -7,16 +7,14 @@ import chess_game.actions.Move;
 import chess_game.board.Board;
 import chess_game.board.Square;
 import chess_game.enums.Color;
-import chess_game.enums.MoveDirection;
 import chess_game.enums.MoveType;
+import chess_game.enums.PieceType;
 
 public class Knight extends Piece {
 
-    private List<MoveDirection> moveTypes;
 
     public Knight(Color color, Square square) {
-        super(color, square);
-        this.moveTypes = List.of(MoveDirection.L_SHAPE);
+        super(color, square,PieceType.KNIGHT);
     }
 
     @Override

@@ -8,5 +8,6 @@ public enum GameState {
     WHITE_RESIGNED,
     BLACK_RESIGNED,
     WHITE_TIMEOUT,
-    BLACK_TIMEOUT
+    BLACK_TIMEOUT,
+    TIE
 }

@@ -7,19 +7,15 @@ import chess_game.actions.Move;
 import chess_game.board.Board;
 import chess_game.board.Square;
 import chess_game.enums.Color;
-import chess_game.enums.MoveDirection;
 import chess_game.enums.MoveType;
+import chess_game.enums.PieceType;
 
 public class Pawn extends Piece {
 
     private boolean isFirstMove = true;
-    private int distance;
-    private List<MoveDirection> moveTypes;
 
     public Pawn(Color color, Square square) {
-        super(color, square);
-        this.moveTypes = List.of(MoveDirection.VERTICAL, MoveDirection.DIAGONAL);
-        this.distance = 1;
+        super(color, square, PieceType.PAWN);
     }
 
     @Override
@@ -35,8 +31,9 @@ public class Pawn extends Piece {
         if (forward != null && forward.getPiece() == null) {
             if ((this.getColor() == Color.WHITE && forward.getRow() == 0) || (this.getColor() == Color.BLACK && forward.getRow() == 7)) {
                 validMoves.add(new Move(this, null, this.getSquare(), forward, MoveType.PROMOTION));
+            } else {
+                validMoves.add(new Move(this, null, this.getSquare(), forward, MoveType.NORMAL));
             }
-            validMoves.add(new Move(this, null, this.getSquare(), forward, MoveType.NORMAL));
             if (isFirstMove) {
                 Square twoSteps = board.getSquare(row + 2 * dir, column);
                 if (twoSteps != null && twoSteps.getPiece() == null) {
@@ -89,8 +86,9 @@ public class Pawn extends Piece {
         return (getColor() == Color.WHITE) ? "/img/white-pawn.png"
                 : "/img/black-pawn.png";
     }
+
     @Override
-    public void onMove(){
+    public void onMove() {
         this.isFirstMove = false;
     }
 }

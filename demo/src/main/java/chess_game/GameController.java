@@ -1,5 +1,7 @@
 package chess_game;
 
+import java.util.List;
+
 import chess_game.actions.Move;
 import chess_game.board.Board;
 import chess_game.board.Square;
@@ -7,6 +9,7 @@ import chess_game.enums.Color;
 import chess_game.enums.GameState;
 import chess_game.enums.MoveResult;
 import chess_game.enums.MoveType;
+import chess_game.enums.PieceType;
 import chess_game.pieces.Bishop;
 import chess_game.pieces.King;
 import chess_game.pieces.Knight;
@@ -81,28 +84,7 @@ public class GameController {
         }
 
         if (move.getType() == MoveType.CASTLING) {
-
-            int row = oldSquare.getRow();
-            int diff = target.getColumn() - oldSquare.getColumn();
-
-            if (diff == 2) {
-                Square rookFrom = board.getSquare(row, 7);
-                Square rookTo = board.getSquare(row, 5);
-
-                Rook rook = (Rook) rookFrom.getPiece();
-                rookFrom.setPiece(null);
-                rookTo.setPiece(rook);
-                rook.setSquare(rookTo);
-
-            } else if (diff == -2) {
-                Square rookFrom = board.getSquare(row, 0);
-                Square rookTo = board.getSquare(row, 3);
-
-                Rook rook = (Rook) rookFrom.getPiece();
-                rookFrom.setPiece(null);
-                rookTo.setPiece(rook);
-                rook.setSquare(rookTo);
-            }
+            castle(oldSquare, target);
         }
 
         oldSquare.setPiece(null);
@@ -120,6 +102,9 @@ public class GameController {
             System.out.println("Moved to: " + (8 - target.getRow()) + "-" + (target.getColumn() + 1));
         }
 
+        if (move.getType() == MoveType.PROMOTION) {
+            return MoveResult.PROMOTION_PENDING;
+        }
         switchCurrentPlayer();
 
         return (capturedPiece != null) ? MoveResult.CAPTURED : MoveResult.MOVED;
@@ -127,6 +112,72 @@ public class GameController {
 
     public Move getLastMove() {
         return lastMove;
+    }
+
+    public Piece promotePawn(Pawn pawn, PieceType promotionType) {
+        Square square = pawn.getSquare();
+        Piece newPiece;
+        switch (promotionType) {
+            case QUEEN ->
+                newPiece = new Queen(pawn.getColor(), square);
+            case ROOK ->
+                newPiece = new Rook(pawn.getColor(), square);
+            case BISHOP ->
+                newPiece = new Bishop(pawn.getColor(), square);
+            case KNIGHT ->
+                newPiece = new Knight(pawn.getColor(), square);
+            default ->
+                throw new IllegalArgumentException("Unknown promotion type");
+
+        }
+
+        square.setPiece(newPiece);
+        if (pawn.getColor() == Color.WHITE) {
+            whitePlayer.removePiece(pawn);
+            whitePlayer.addPiece(newPiece);
+        } else {
+            blackPlayer.removePiece(pawn);
+            blackPlayer.addPiece(newPiece);
+        }
+        switchCurrentPlayer();
+        return newPiece;
+    }
+
+    public Move findValidMove(Piece piece, Square target) {
+
+        List<Move> validMoves = piece.getValidMoves(board, lastMove);
+
+        for (Move move : validMoves) {
+            if (move.getNewSquare() == target) {
+                return move;
+            }
+        }
+
+        return null;
+    }
+
+    private void castle(Square oldSquare, Square target) {
+        int row = oldSquare.getRow();
+        int diff = target.getColumn() - oldSquare.getColumn();
+
+        if (diff == 2) {
+            Square rookFrom = board.getSquare(row, 7);
+            Square rookTo = board.getSquare(row, 5);
+
+            Rook rook = (Rook) rookFrom.getPiece();
+            rookFrom.setPiece(null);
+            rookTo.setPiece(rook);
+            rook.setSquare(rookTo);
+
+        } else if (diff == -2) {
+            Square rookFrom = board.getSquare(row, 0);
+            Square rookTo = board.getSquare(row, 3);
+
+            Rook rook = (Rook) rookFrom.getPiece();
+            rookFrom.setPiece(null);
+            rookTo.setPiece(rook);
+            rook.setSquare(rookTo);
+        }
     }
 
     private void switchCurrentPlayer() {
@@ -152,10 +203,10 @@ public class GameController {
     private void setupInitialPosition() {
         //White
         for (int col = 0; col < 8; col++) {
-            Square square = board.getSquare(7, col);
             Square pawnSquare = board.getSquare(6, col);
-            Piece piece = null;
             Pawn pawn = new Pawn(Color.WHITE, pawnSquare);
+            Square square = board.getSquare(7, col);
+            Piece piece = null;
             switch (col) {
                 case 0, 7 ->
                     piece = new Rook(Color.WHITE, square);
@@ -172,16 +223,17 @@ public class GameController {
             if (piece != null) {
                 square.setPiece(piece);
                 whitePlayer.addPiece(piece);
+                // }
+                pawnSquare.setPiece(pawn);
+                whitePlayer.addPiece(pawn);
             }
-            pawnSquare.setPiece(pawn);
-            whitePlayer.addPiece(pawn);
         }
         // Black 
         for (int col = 0; col < 8; col++) {
-            Square square = board.getSquare(0, col);
             Square pawnSquare = board.getSquare(1, col);
-            Piece piece = null;
             Pawn pawn = new Pawn(Color.BLACK, pawnSquare);
+            Piece piece = null;
+            Square square = board.getSquare(0, col);
             switch (col) {
                 case 0, 7 ->
                     piece = new Rook(Color.BLACK, square);
@@ -202,7 +254,6 @@ public class GameController {
             pawnSquare.setPiece(pawn);
             blackPlayer.addPiece(pawn);
         }
-
     }
 
     public void setGameState(GameState gameState) {

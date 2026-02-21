@@ -7,17 +7,15 @@ import chess_game.actions.Move;
 import chess_game.board.Board;
 import chess_game.board.Square;
 import chess_game.enums.Color;
-import chess_game.enums.MoveDirection;
 import chess_game.enums.MoveType;
+import chess_game.enums.PieceType;
 
 public class Bishop extends Piece {
 
     private final int distance;
-    private List<MoveDirection> moveTypes;
 
     public Bishop(Color color, Square square) {
-        super(color, square);
-        this.moveTypes = List.of(MoveDirection.VERTICAL, MoveDirection.HORIZONTAL);
+        super(color, square, PieceType.BISHOP);
         this.distance = 7;
     }
 

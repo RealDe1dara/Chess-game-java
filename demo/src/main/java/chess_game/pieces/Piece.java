@@ -7,20 +7,27 @@ import chess_game.actions.Move;
 import chess_game.board.Board;
 import chess_game.board.Square;
 import chess_game.enums.Color;
+import chess_game.enums.PieceType;
 
 public abstract class Piece implements Visualizable {
 
     private final Color color;
     private Square square;
+    private final PieceType type;
 
-    public Piece(Color color, Square square) {
+    public Piece(Color color, Square square, PieceType type) {
         this.square = square;
         this.color = color;
+        this.type = type;
     }
 
     @Override
     public Color getColor() {
         return color;
+    }
+
+    public PieceType getType() {
+        return type;
     }
 
     public Square getSquare() {
@@ -38,4 +45,5 @@ public abstract class Piece implements Visualizable {
 
     public void onMove() {
     }
+
 }
