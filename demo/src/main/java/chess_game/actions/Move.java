@@ -2,7 +2,6 @@ package chess_game.actions;
 
 import chess_game.board.Square;
 import chess_game.enums.MoveType;
-import chess_game.pieces.Pawn;
 import chess_game.pieces.Piece;
 
 public class Move {
@@ -39,13 +38,5 @@ public class Move {
 
     public MoveType getType() {
         return type;
-    }
-
-    public boolean isDoublePawnMove() {
-        if (movedPiece instanceof Pawn) {
-
-            return Math.abs((oldSquare.getRow() - newSquare.getRow())) == 2;
-        }
-        return false;
     }
 }

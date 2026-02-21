@@ -45,7 +45,6 @@ public class Knight extends Piece {
                 if (target.getPiece().getColor() != this.getColor()) {
                     validMoves.add(new Move(this, target.getPiece(), this.getSquare(), target, MoveType.CAPTURE));
                 }
-                break;
             }
 
         }

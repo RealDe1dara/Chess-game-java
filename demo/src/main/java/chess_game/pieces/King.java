@@ -14,6 +14,7 @@ public class King extends Piece {
 
     private final int distance;
     private List<MoveDirection> moveTypes;
+    private boolean isFirstMove = true;
 
     public King(Color color, Square square) {
         super(color, square);
@@ -59,7 +60,46 @@ public class King extends Piece {
 
             }
         }
+
+        if (this.isFirstMove) {
+
+            // King side
+            Square rookSquare = board.getSquare(row, 7);
+            if (rookSquare != null && rookSquare.getPiece() instanceof Rook rook
+                    && rook.getIsFirstMove()) {
+
+                Square fSquare = board.getSquare(row, column + 1);
+                Square gSquare = board.getSquare(row, column + 2);
+
+                if (fSquare.getPiece() == null && gSquare.getPiece() == null) {
+                    validMoves.add(new Move(this, null, this.getSquare(), gSquare, MoveType.CASTLING));
+                }
+            }
+
+            // Queen side
+            rookSquare = board.getSquare(row, 0);
+            if (rookSquare != null && rookSquare.getPiece() instanceof Rook rook
+                    && rook.getIsFirstMove()) {
+
+                Square dSquare = board.getSquare(row, column - 1);
+                Square cSquare = board.getSquare(row, column - 2);
+                Square bSquare = board.getSquare(row, column - 3);
+
+                if (dSquare.getPiece() == null
+                        && cSquare.getPiece() == null
+                        && bSquare.getPiece() == null) {
+
+                    validMoves.add(new Move(this, null, this.getSquare(), cSquare, MoveType.CASTLING));
+                }
+            }
+        }
+
         return validMoves;
+    }
+
+    @Override
+    public void onMove() {
+        this.isFirstMove = false;
     }
 
     @Override

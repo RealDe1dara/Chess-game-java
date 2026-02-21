@@ -36,4 +36,6 @@ public abstract class Piece implements Visualizable {
 
     public abstract List<Move> getValidMoves(Board board, Move lastMove);
 
+    public void onMove() {
+    }
 }

@@ -9,6 +9,7 @@ import chess_game.board.Board;
 import chess_game.board.Square;
 import chess_game.enums.MoveResult;
 import chess_game.enums.MoveType;
+import chess_game.pieces.King;
 import chess_game.pieces.Pawn;
 import chess_game.pieces.Piece;
 import javafx.scene.image.Image;
@@ -77,24 +78,21 @@ public class GameUI {
                         gameController.selectPiece(clickedSquare.getPiece());
                         return;
                     }
-                    // Determine captured piece (including en passant)
                     Piece capturedPiece = clickedSquare.getPiece();
 
-                    // Check for en passant
+                    // en passant
                     if (selected instanceof Pawn && gameController.getLastMove() != null) {
                         Move lastMove = gameController.getLastMove();
                         if (lastMove.getType() == MoveType.PAWN_DOUBLE
                                 && lastMove.getMovedPiece().getColor() != selected.getColor()) {
-
                             Square enemyPawnSquare = lastMove.getNewSquare();
                             int dir = selected.getColor().getForwardDir();
                             if (clickedSquare == board.getSquare(enemyPawnSquare.getRow() + dir, enemyPawnSquare.getColumn())) {
-                                capturedPiece = enemyPawnSquare.getPiece(); // actual captured pawn
+                                capturedPiece = enemyPawnSquare.getPiece();
                             }
                         }
                     }
 
-                    // Determine MoveType
                     MoveType type = MoveType.NORMAL;
                     if (capturedPiece != null) {
                         type = MoveType.CAPTURE;
@@ -104,18 +102,27 @@ public class GameUI {
                         if (Math.abs(selected.getSquare().getRow() - clickedSquare.getRow()) == 2) {
                             type = MoveType.PAWN_DOUBLE;
                         }
-
-                        // En passant already handled above
                     }
 
-                    // Create the move
-                    Move move = new Move(selected, capturedPiece, selected.getSquare(), clickedSquare, type);
+                    if (selected instanceof King && Math.abs(selected.getSquare().getColumn() - clickedSquare.getColumn()) == 2) {
+                        type = MoveType.CASTLING;
+                    }
 
-                    // Execute
+                    Move move = new Move(selected, capturedPiece, selected.getSquare(), clickedSquare, type);
                     MoveResult result = gameController.movePiece(move);
 
                     if (result != MoveResult.INVALID) {
                         movePieceView(selected, capturedPiece);
+                        if (type == MoveType.CASTLING) {
+                            int kingRow = selected.getSquare().getRow();
+                            Square rookSquare;
+                            if (selected.getSquare().getColumn() == 2) {
+                                rookSquare = board.getSquare(kingRow, 3);
+                            } else {
+                                rookSquare = board.getSquare(kingRow, 5);
+                            }
+                            movePieceView(rookSquare.getPiece(), null);
+                        }
                     }
 
                     gameController.clearSelection();

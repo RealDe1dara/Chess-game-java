@@ -14,6 +14,7 @@ public class Rook extends Piece {
 
     private final int distance;
     private List<MoveDirection> moveTypes;
+    private boolean isFirstMove = true;
 
     public Rook(Color color, Square square) {
         super(color, square);
@@ -57,6 +58,15 @@ public class Rook extends Piece {
             }
         }
         return validMoves;
+    }
+
+    @Override
+    public void onMove() {
+        this.isFirstMove = false;
+    }
+
+    public boolean getIsFirstMove() {
+        return isFirstMove;
     }
 
     @Override

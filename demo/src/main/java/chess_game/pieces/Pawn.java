@@ -89,8 +89,8 @@ public class Pawn extends Piece {
         return (getColor() == Color.WHITE) ? "/img/white-pawn.png"
                 : "/img/black-pawn.png";
     }
-
-    public void setIsFirstMove(boolean isFirstMove) {
-        this.isFirstMove = isFirstMove;
+    @Override
+    public void onMove(){
+        this.isFirstMove = false;
     }
 }

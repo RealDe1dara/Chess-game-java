@@ -58,13 +58,12 @@ public class GameController {
         Square oldSquare = piece.getSquare();
         Piece capturedPiece = move.getCapturedPiece();
 
-        // Check turn and validity
         if (piece.getColor() != currentPlayer.getColor()) {
             return MoveResult.INVALID;
         }
         boolean valid = piece.getValidMoves(board, lastMove).stream()
                 .anyMatch(m -> m.getNewSquare() == move.getNewSquare() && m.getMovedPiece() == move.getMovedPiece());
-        if (!valid || piece.getColor() != currentPlayer.getColor()) {
+        if (!valid) {
             return MoveResult.INVALID;
         }
 
@@ -76,25 +75,44 @@ public class GameController {
             }
 
             if (move.getType() == MoveType.EN_PASSANT) {
-                // Remove captured pawn from board (behind target square)
                 Square capturedSquare = capturedPiece.getSquare();
                 capturedSquare.setPiece(null);
             }
         }
 
-        // Move piece on board
+        if (move.getType() == MoveType.CASTLING) {
+
+            int row = oldSquare.getRow();
+            int diff = target.getColumn() - oldSquare.getColumn();
+
+            if (diff == 2) {
+                Square rookFrom = board.getSquare(row, 7);
+                Square rookTo = board.getSquare(row, 5);
+
+                Rook rook = (Rook) rookFrom.getPiece();
+                rookFrom.setPiece(null);
+                rookTo.setPiece(rook);
+                rook.setSquare(rookTo);
+
+            } else if (diff == -2) {
+                Square rookFrom = board.getSquare(row, 0);
+                Square rookTo = board.getSquare(row, 3);
+
+                Rook rook = (Rook) rookFrom.getPiece();
+                rookFrom.setPiece(null);
+                rookTo.setPiece(rook);
+                rook.setSquare(rookTo);
+            }
+        }
+
         oldSquare.setPiece(null);
         target.setPiece(piece);
         piece.setSquare(target);
 
-        // Pawn first move
-        if (piece instanceof Pawn pawn) {
-            pawn.setIsFirstMove(false);
-        }
+        piece.onMove();
 
         lastMove = move;
 
-        // Logging
         if (capturedPiece != null) {
             System.out.println("Captured: " + capturedPiece.getClass().getSimpleName()
                     + " at " + (8 - target.getRow()) + "-" + (target.getColumn() + 1));
