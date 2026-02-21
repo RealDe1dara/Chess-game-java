@@ -3,23 +3,25 @@ package chess_game.pieces;
 import java.util.ArrayList;
 import java.util.List;
 
+import chess_game.actions.Move;
 import chess_game.board.Board;
 import chess_game.board.Square;
 import chess_game.enums.Color;
+import chess_game.enums.MoveDirection;
 import chess_game.enums.MoveType;
 
 public class Knight extends Piece {
 
-    private List<MoveType> moveTypes;
+    private List<MoveDirection> moveTypes;
 
     public Knight(Color color, Square square) {
         super(color, square);
-        this.moveTypes = List.of(MoveType.L_SHAPE);
+        this.moveTypes = List.of(MoveDirection.L_SHAPE);
     }
 
     @Override
-    public List<Square> getValidMoves(Board board) {
-        List<Square> validMoves = new ArrayList<>();
+    public List<Move> getValidMoves(Board board, Move lastMove) {
+        List<Move> validMoves = new ArrayList<>();
 
         int row = getSquare().getRow();
         int column = getSquare().getColumn();
@@ -37,8 +39,13 @@ public class Knight extends Piece {
                 continue;
             }
 
-            if (target.getPiece() == null || target.getPiece().getColor() != getColor()) {
-                validMoves.add(target);
+            if (target.getPiece() == null) {
+                validMoves.add(new Move(this, null, this.getSquare(), target, MoveType.NORMAL));
+            } else {
+                if (target.getPiece().getColor() != this.getColor()) {
+                    validMoves.add(new Move(this, target.getPiece(), this.getSquare(), target, MoveType.CAPTURE));
+                }
+                break;
             }
 
         }

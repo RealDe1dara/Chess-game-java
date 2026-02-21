@@ -3,25 +3,27 @@ package chess_game.pieces;
 import java.util.ArrayList;
 import java.util.List;
 
+import chess_game.actions.Move;
 import chess_game.board.Board;
 import chess_game.board.Square;
 import chess_game.enums.Color;
+import chess_game.enums.MoveDirection;
 import chess_game.enums.MoveType;
 
 public class King extends Piece {
 
     private final int distance;
-    private List<MoveType> moveTypes;
+    private List<MoveDirection> moveTypes;
 
     public King(Color color, Square square) {
         super(color, square);
-        this.moveTypes = List.of(MoveType.VERTICAL, MoveType.HORIZONTAL);
+        this.moveTypes = List.of(MoveDirection.VERTICAL, MoveDirection.HORIZONTAL);
         this.distance = 1;
     }
 
     @Override
-    public List<Square> getValidMoves(Board board) {
-        List<Square> validMoves = new ArrayList<>();
+    public List<Move> getValidMoves(Board board, Move lastMove) {
+        List<Move> validMoves = new ArrayList<>();
 
         int row = getSquare().getRow();
         int column = getSquare().getColumn();
@@ -47,10 +49,10 @@ public class King extends Piece {
                 }
 
                 if (target.getPiece() == null) {
-                    validMoves.add(target);
+                    validMoves.add(new Move(this, null, this.getSquare(), target, MoveType.NORMAL));
                 } else {
                     if (target.getPiece().getColor() != this.getColor()) {
-                        validMoves.add(target);
+                        validMoves.add(new Move(this, target.getPiece(), this.getSquare(), target, MoveType.CAPTURE));
                     }
                     break;
                 }

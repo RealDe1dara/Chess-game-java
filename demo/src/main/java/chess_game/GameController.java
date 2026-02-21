@@ -1,10 +1,12 @@
 package chess_game;
 
+import chess_game.actions.Move;
 import chess_game.board.Board;
 import chess_game.board.Square;
 import chess_game.enums.Color;
 import chess_game.enums.GameState;
 import chess_game.enums.MoveResult;
+import chess_game.enums.MoveType;
 import chess_game.pieces.Bishop;
 import chess_game.pieces.King;
 import chess_game.pieces.Knight;
@@ -21,6 +23,7 @@ public class GameController {
     private final Player blackPlayer;
     private Player currentPlayer;
     private GameState gameState;
+    private Move lastMove;
 
     public GameController() {
         this.board = new Board();
@@ -37,37 +40,75 @@ public class GameController {
 
     public void selectPiece(Piece piece) {
         selectedPiece = piece;
+        System.out.println("Selected piece: " + Math.abs(piece.getSquare().getRow() - 8) + "-" + (piece.getSquare().getColumn() + 1));
     }
 
     public void clearSelection() {
         selectedPiece = null;
     }
 
-    public MoveResult movePiece(Piece piece, Square target) {
-        if (piece == null || target == null) {
+    public MoveResult movePiece(Move move) {
+
+        if (move == null || move.getMovedPiece() == null || move.getNewSquare() == null) {
             return MoveResult.INVALID;
         }
 
-        if (!piece.getValidMoves(board).contains(target) || piece.getColor() != currentPlayer.getColor()) {
-            return MoveResult.INVALID;
-        }
-
+        Piece piece = move.getMovedPiece();
+        Square target = move.getNewSquare();
         Square oldSquare = piece.getSquare();
-        Piece targetPiece = target.getPiece();
-        if(targetPiece!=null){
-            if(targetPiece.getColor() == Color.BLACK){
-                blackPlayer.removePiece(targetPiece);
+        Piece capturedPiece = move.getCapturedPiece();
+
+        // Check turn and validity
+        if (piece.getColor() != currentPlayer.getColor()) {
+            return MoveResult.INVALID;
+        }
+        boolean valid = piece.getValidMoves(board, lastMove).stream()
+                .anyMatch(m -> m.getNewSquare() == move.getNewSquare() && m.getMovedPiece() == move.getMovedPiece());
+        if (!valid || piece.getColor() != currentPlayer.getColor()) {
+            return MoveResult.INVALID;
+        }
+
+        if (capturedPiece != null) {
+            if (capturedPiece.getColor() == Color.BLACK) {
+                blackPlayer.removePiece(capturedPiece);
+            } else {
+                whitePlayer.removePiece(capturedPiece);
             }
-            else{
-                whitePlayer.removePiece(targetPiece);
+
+            if (move.getType() == MoveType.EN_PASSANT) {
+                // Remove captured pawn from board (behind target square)
+                Square capturedSquare = capturedPiece.getSquare();
+                capturedSquare.setPiece(null);
             }
         }
+
+        // Move piece on board
         oldSquare.setPiece(null);
         target.setPiece(piece);
         piece.setSquare(target);
+
+        // Pawn first move
+        if (piece instanceof Pawn pawn) {
+            pawn.setIsFirstMove(false);
+        }
+
+        lastMove = move;
+
+        // Logging
+        if (capturedPiece != null) {
+            System.out.println("Captured: " + capturedPiece.getClass().getSimpleName()
+                    + " at " + (8 - target.getRow()) + "-" + (target.getColumn() + 1));
+        } else {
+            System.out.println("Moved to: " + (8 - target.getRow()) + "-" + (target.getColumn() + 1));
+        }
+
         switchCurrentPlayer();
 
-        return (targetPiece != null) ? MoveResult.CAPTURED : MoveResult.MOVED;
+        return (capturedPiece != null) ? MoveResult.CAPTURED : MoveResult.MOVED;
+    }
+
+    public Move getLastMove() {
+        return lastMove;
     }
 
     private void switchCurrentPlayer() {

@@ -1,9 +1,10 @@
 package chess_game.enums;
 
 public enum MoveType {
-    HORIZONTAL,
-    VERTICAL,
-    DIAGONAL,
-    L_SHAPE,
-
+    NORMAL,
+    CAPTURE,
+    EN_PASSANT,
+    CASTLING,
+    PROMOTION,
+    PAWN_DOUBLE
 }
