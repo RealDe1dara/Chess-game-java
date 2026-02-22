@@ -77,13 +77,13 @@ public class GameController {
                 whitePlayer.removePiece(capturedPiece);
             }
 
-            if (move.getType() == MoveType.EN_PASSANT) {
+            if (move.hasType(MoveType.EN_PASSANT)) {
                 Square capturedSquare = capturedPiece.getSquare();
                 capturedSquare.setPiece(null);
             }
         }
 
-        if (move.getType() == MoveType.CASTLING) {
+        if (move.hasType(MoveType.CASTLING)) {
             castle(oldSquare, target);
         }
 
@@ -102,7 +102,7 @@ public class GameController {
             System.out.println("Moved to: " + (8 - target.getRow()) + "-" + (target.getColumn() + 1));
         }
 
-        if (move.getType() == MoveType.PROMOTION) {
+        if (move.hasType(MoveType.PROMOTION)) {
             return MoveResult.PROMOTION_PENDING;
         }
         switchCurrentPlayer();
@@ -246,7 +246,6 @@ public class GameController {
                 case 4 ->
                     piece = new King(Color.BLACK, square);
             }
-
             if (piece != null) {
                 square.setPiece(piece);
                 blackPlayer.addPiece(piece);

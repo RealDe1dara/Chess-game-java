@@ -27,9 +27,9 @@ public class Pawn extends Piece {
         int column = getSquare().getColumn();
 
         Square forward = board.getSquare(row + dir, column);
-
+        int promotionRow = (this.getColor() == Color.WHITE) ? 0 : 7;
         if (forward != null && forward.getPiece() == null) {
-            if ((this.getColor() == Color.WHITE && forward.getRow() == 0) || (this.getColor() == Color.BLACK && forward.getRow() == 7)) {
+            if (promotionRow == forward.getRow()) {
                 validMoves.add(new Move(this, null, this.getSquare(), forward, MoveType.PROMOTION));
             } else {
                 validMoves.add(new Move(this, null, this.getSquare(), forward, MoveType.NORMAL));
@@ -46,16 +46,24 @@ public class Pawn extends Piece {
 
         if (forwardLeft != null && forwardLeft.getPiece() != null
                 && forwardLeft.getPiece().getColor() != this.getColor()) {
-            validMoves.add(new Move(this, forwardLeft.getPiece(), this.getSquare(), forwardLeft, MoveType.CAPTURE));
+            if (forwardLeft.getRow() == promotionRow) {
+                validMoves.add(new Move(this, forwardLeft.getPiece(), this.getSquare(), forwardLeft, MoveType.CAPTURE, MoveType.PROMOTION));
+            } else {
+                validMoves.add(new Move(this, forwardLeft.getPiece(), this.getSquare(), forwardLeft, MoveType.CAPTURE));
+            }
         }
 
         if (forwardRight != null && forwardRight.getPiece() != null
                 && forwardRight.getPiece().getColor() != this.getColor()) {
-            validMoves.add(new Move(this, forwardRight.getPiece(), this.getSquare(), forwardRight, MoveType.CAPTURE));
+            if (forwardRight.getRow() == promotionRow) {
+                validMoves.add(new Move(this, forwardRight.getPiece(), this.getSquare(), forwardRight, MoveType.CAPTURE, MoveType.PROMOTION));
+            } else {
+                validMoves.add(new Move(this, forwardRight.getPiece(), this.getSquare(), forwardRight, MoveType.CAPTURE));
+            }
         }
 
         if (lastMove != null
-                && lastMove.getType() == MoveType.PAWN_DOUBLE
+                && lastMove.hasType(MoveType.PAWN_DOUBLE)
                 && lastMove.getMovedPiece().getColor() != this.getColor()
                 && lastMove.getMovedPiece() instanceof Pawn) {
 
@@ -67,12 +75,7 @@ public class Pawn extends Piece {
                 Square enPassantTarget = board.getSquare(enemyPawnSquare.getRow() + dir, enemyPawnSquare.getColumn());
 
                 if (enPassantTarget != null && enPassantTarget.getPiece() == null) {
-                    validMoves.add(new Move(
-                            this,
-                            enemyPawnSquare.getPiece(),
-                            this.getSquare(),
-                            enPassantTarget,
-                            MoveType.EN_PASSANT
+                    validMoves.add(new Move(this, enemyPawnSquare.getPiece(), this.getSquare(), enPassantTarget, MoveType.EN_PASSANT, MoveType.CAPTURE
                     ));
                 }
             }

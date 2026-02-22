@@ -8,6 +8,7 @@ import java.util.Objects;
 import chess_game.actions.Move;
 import chess_game.board.Board;
 import chess_game.board.Square;
+import chess_game.enums.Color;
 import chess_game.enums.MoveResult;
 import chess_game.enums.MoveType;
 import chess_game.enums.PieceType;
@@ -92,7 +93,7 @@ public class GameUI {
                     // en passant
                     if (selected instanceof Pawn && gameController.getLastMove() != null) {
                         Move lastMove = gameController.getLastMove();
-                        if (lastMove.getType() == MoveType.PAWN_DOUBLE
+                        if (lastMove.hasType(MoveType.PAWN_DOUBLE)
                                 && lastMove.getMovedPiece().getColor() != selected.getColor()) {
                             Square enemyPawnSquare = lastMove.getNewSquare();
                             int dir = selected.getColor().getForwardDir();
@@ -114,7 +115,7 @@ public class GameUI {
                     switch (result) {
                         case MOVED, CAPTURED -> {
                             movePieceView(selected, capturedPiece);
-                            if (move.getType() == MoveType.CASTLING) {
+                            if (move.hasType(MoveType.CASTLING)) {
                                 int kingRow = selected.getSquare().getRow();
                                 Square rookSquare;
                                 if (selected.getSquare().getColumn() == 2) {
@@ -126,7 +127,7 @@ public class GameUI {
                             }
                         }
                         case PROMOTION_PENDING -> {
-                            movePieceView(selected, null);
+                            movePieceView(selected, capturedPiece);
                             showPromotionDialog((Pawn) selected);
                         }
                         default -> {
@@ -169,9 +170,13 @@ public class GameUI {
     private void showPromotionDialog(Pawn pawn) {
 
         GridPane promotionGrid = new GridPane();
-        promotionGrid.setStyle("-fx-background-color: rgba(0,0,0,0.9); -fx-padding: 10;");
+        if (pawn.getColor() == Color.WHITE) {
+            promotionGrid.setStyle("-fx-background-color: rgba(0,0,0,0.5); -fx-padding: 10;");
+        } else {
+            promotionGrid.setStyle("-fx-background-color: rgba(255,255,255,0.5); -fx-padding: 10;");
+        }
         promotionGrid.setAlignment(Pos.CENTER);
-        promotionGrid.setVgap(5);
+        promotionGrid.setHgap(5);
 
         StackPane.setAlignment(promotionGrid, Pos.CENTER);
 
@@ -200,7 +205,7 @@ public class GameUI {
                     -> finishPromotion(pawn, piece.getType(), promotionGrid)
             );
 
-            promotionGrid.add(imageView, 0, i);
+            promotionGrid.add(imageView, i, 0);
         }
 
         root.getChildren().add(promotionGrid);
