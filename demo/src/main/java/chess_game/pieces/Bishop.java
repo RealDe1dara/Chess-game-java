@@ -12,11 +12,9 @@ import chess_game.enums.PieceType;
 
 public class Bishop extends Piece {
 
-    private final int distance;
 
     public Bishop(Color color, Square square) {
         super(color, square, PieceType.BISHOP);
-        this.distance = 7;
     }
 
     @Override
@@ -34,7 +32,7 @@ public class Bishop extends Piece {
         };
 
         for (int[] dir : directions) {
-            for (int i = 1; i <= distance; i++) {
+            for (int i = 1; ; i++) {
 
                 Square target = board.getSquare(row + i * dir[0], column + i * dir[1]);
 

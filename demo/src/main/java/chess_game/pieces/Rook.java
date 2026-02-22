@@ -12,12 +12,10 @@ import chess_game.enums.PieceType;
 
 public class Rook extends Piece {
 
-    private final int distance;
     private boolean isFirstMove = true;
 
     public Rook(Color color, Square square) {
         super(color, square, PieceType.ROOK);
-        this.distance = 7;
     }
 
     @Override
@@ -35,7 +33,7 @@ public class Rook extends Piece {
         };
 
         for (int[] dir : directions) {
-            for (int i = 1; i <= distance; i++) {
+            for (int i = 1; ; i++) {
 
                 Square target = board.getSquare(row + i * dir[0], column + i * dir[1]);
 

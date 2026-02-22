@@ -12,11 +12,9 @@ import chess_game.enums.PieceType;
 
 public class Queen extends Piece {
 
-    private final int distance;
 
     public Queen(Color color, Square square) {
         super(color, square,PieceType.QUEEN);
-        this.distance = 7;
     }
 
     @Override
@@ -38,7 +36,7 @@ public class Queen extends Piece {
         };
 
         for (int[] dir : directions) {
-            for (int i = 1; i <= distance; i++) {
+            for (int i = 1; ; i++) {
 
                 Square target = board.getSquare(row + i * dir[0], column + i * dir[1]);
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chess_game.enums.Color;
+import chess_game.pieces.King;
 import chess_game.pieces.Piece;
 
 public class Player {
@@ -29,5 +30,14 @@ public class Player {
 
     public void removePiece(Piece piece) {
         pieces.remove(piece);
+    }
+
+    public King getKing(){
+        for (Piece piece : pieces) {
+            if(piece instanceof King king){
+                return king;
+            }
+        }
+        return null;
     }
 }

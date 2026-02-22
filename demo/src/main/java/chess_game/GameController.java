@@ -27,11 +27,13 @@ public class GameController {
     private Player currentPlayer;
     private GameState gameState;
     private Move lastMove;
+    private final GameAnalyzer analyzer;
 
     public GameController() {
         this.board = new Board();
         this.whitePlayer = new Player(Color.WHITE);
         this.blackPlayer = new Player(Color.BLACK);
+        this.analyzer = new GameAnalyzer(board);
         setupInitialPosition();
         this.currentPlayer = whitePlayer;
         this.gameState = GameState.ACTIVE;
@@ -106,8 +108,22 @@ public class GameController {
             return MoveResult.PROMOTION_PENDING;
         }
         switchCurrentPlayer();
+        updateGameState();
 
         return (capturedPiece != null) ? MoveResult.CAPTURED : MoveResult.MOVED;
+    }
+
+    private void updateGameState() {
+        King king = currentPlayer.getKing();
+        if (king == null) {
+            gameState = GameState.ACTIVE;
+            return;
+        }
+        if (analyzer.isSquareAttacked(king.getSquare(), getOpponentPlayer(), lastMove)) {
+            gameState = GameState.CHECK;
+            System.out.println("CHECK");
+            return;
+        }
     }
 
     public Move getLastMove() {
@@ -140,6 +156,7 @@ public class GameController {
             blackPlayer.addPiece(newPiece);
         }
         switchCurrentPlayer();
+        updateGameState();
         return newPiece;
     }
 
@@ -196,6 +213,10 @@ public class GameController {
         return currentPlayer;
     }
 
+    public Player getOpponentPlayer() {
+        return (currentPlayer == whitePlayer) ? blackPlayer : whitePlayer;
+    }
+
     public Board getBoard() {
         return board;
     }
@@ -223,7 +244,7 @@ public class GameController {
             if (piece != null) {
                 square.setPiece(piece);
                 whitePlayer.addPiece(piece);
-                // }
+
                 pawnSquare.setPiece(pawn);
                 whitePlayer.addPiece(pawn);
             }
