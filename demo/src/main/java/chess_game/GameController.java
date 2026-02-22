@@ -66,22 +66,35 @@ public class GameController {
         if (piece.getColor() != currentPlayer.getColor()) {
             return MoveResult.INVALID;
         }
-        boolean valid = piece.getValidMoves(board, lastMove).stream()
+        boolean valid = analyzer.getLegalMoves(piece, currentPlayer, getOpponentPlayer(), lastMove).stream()
                 .anyMatch(m -> m.getNewSquare() == move.getNewSquare() && m.getMovedPiece() == move.getMovedPiece());
         if (!valid) {
             return MoveResult.INVALID;
         }
 
-        if (capturedPiece != null) {
+        if (move.hasType(MoveType.EN_PASSANT)) {
+            int dir = (piece.getColor() == Color.WHITE) ? 1 : -1;
+            Square enPassantSquare = board.getSquare(target.getRow() + dir, target.getColumn());
+            Piece epPawn = enPassantSquare.getPiece();
+            if (epPawn != null && epPawn instanceof Pawn) {
+                epPawn.setSquare(null);
+                enPassantSquare.setPiece(null);
+                if (epPawn.getColor() == Color.BLACK) {
+                    blackPlayer.removePiece(epPawn);
+                } else {
+                    whitePlayer.removePiece(epPawn);
+                }
+            }
+        } else if (capturedPiece != null) {
+            Square capturedSquare = capturedPiece.getSquare();
+            if (capturedSquare != null) {
+                capturedSquare.setPiece(null);
+            }
+            capturedPiece.setSquare(null);
             if (capturedPiece.getColor() == Color.BLACK) {
                 blackPlayer.removePiece(capturedPiece);
             } else {
                 whitePlayer.removePiece(capturedPiece);
-            }
-
-            if (move.hasType(MoveType.EN_PASSANT)) {
-                Square capturedSquare = capturedPiece.getSquare();
-                capturedSquare.setPiece(null);
             }
         }
 
@@ -117,6 +130,16 @@ public class GameController {
         King king = currentPlayer.getKing();
         if (king == null) {
             gameState = GameState.ACTIVE;
+            return;
+        }
+        if (analyzer.isCheckmate(currentPlayer, getOpponentPlayer(), lastMove)) {
+            gameState = (getOpponentPlayer() == whitePlayer) ? GameState.WHITE_WON : GameState.BLACK_WON;
+            System.out.println("CHECKMATE");
+            return;
+        }
+        if (analyzer.isDraw(currentPlayer, getOpponentPlayer(), lastMove)) {
+            gameState = GameState.DRAW;
+            System.out.println("DRAW");
             return;
         }
         if (analyzer.isSquareAttacked(king.getSquare(), getOpponentPlayer(), lastMove)) {
@@ -162,7 +185,7 @@ public class GameController {
 
     public Move findValidMove(Piece piece, Square target) {
 
-        List<Move> validMoves = piece.getValidMoves(board, lastMove);
+        List<Move> validMoves = analyzer.getLegalMoves(piece, currentPlayer, getOpponentPlayer(), lastMove);
 
         for (Move move : validMoves) {
             if (move.getNewSquare() == target) {
@@ -245,9 +268,9 @@ public class GameController {
                 square.setPiece(piece);
                 whitePlayer.addPiece(piece);
 
-                pawnSquare.setPiece(pawn);
-                whitePlayer.addPiece(pawn);
             }
+            pawnSquare.setPiece(pawn);
+            whitePlayer.addPiece(pawn);
         }
         // Black 
         for (int col = 0; col < 8; col++) {

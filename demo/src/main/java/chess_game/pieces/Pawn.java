@@ -94,4 +94,10 @@ public class Pawn extends Piece {
     public void onMove() {
         this.isFirstMove = false;
     }
+    
+    @Override
+    public void undoOnMove() {
+        this.isFirstMove = true;
+    }
+    
 }

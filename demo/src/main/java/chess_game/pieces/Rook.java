@@ -33,7 +33,7 @@ public class Rook extends Piece {
         };
 
         for (int[] dir : directions) {
-            for (int i = 1; ; i++) {
+            for (int i = 1;; i++) {
 
                 Square target = board.getSquare(row + i * dir[0], column + i * dir[1]);
 
@@ -59,6 +59,11 @@ public class Rook extends Piece {
     @Override
     public void onMove() {
         this.isFirstMove = false;
+    }
+
+    @Override
+    public void undoOnMove() {
+        this.isFirstMove = true;
     }
 
     public boolean getIsFirstMove() {

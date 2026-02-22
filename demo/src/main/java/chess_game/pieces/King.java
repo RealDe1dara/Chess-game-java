@@ -101,6 +101,11 @@ public class King extends Piece {
     }
 
     @Override
+    public void undoOnMove() {
+        this.isFirstMove = true;
+    }
+
+    @Override
     public String getSrc() {
         return (getColor() == Color.WHITE) ? "/img/white-king.png"
                 : "/img/black-king.png";

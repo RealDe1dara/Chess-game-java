@@ -46,4 +46,6 @@ public abstract class Piece implements Visualizable {
     public void onMove() {
     }
 
+    public void undoOnMove(){}
+
 }
